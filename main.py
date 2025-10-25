@@ -109,7 +109,7 @@ async def root(request: Request):
 
 @app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request, "show_signup": False})
 
 @app.post("/login")
 async def post_login(request: Request, username: str = Form(...), password: str = Form(...)):
@@ -117,7 +117,7 @@ async def post_login(request: Request, username: str = Form(...), password: str 
         user = session.exec(select(User).where(User.username == username)).first()
         if not user or not verify_password(password, user.hashed_password):
             # render login with error
-            return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+            return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials", "show_signup": False})
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
@@ -131,18 +131,18 @@ async def post_login(request: Request, username: str = Form(...), password: str 
 async def post_signup(request: Request, username: str = Form(...), password: str = Form(...), password2: str = Form(...)):
     # server-side validation
     if not username or not username.strip():
-        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username is required"})
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username is required", "show_signup": True})
     if not password or not password.strip():
-        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password is required"})
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password is required", "show_signup": True})
     if password != password2:
-        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Passwords do not match"})
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Passwords do not match", "show_signup": True})
     if len(password) < 6:
-        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password must be at least 6 characters"})
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password must be at least 6 characters", "show_signup": True})
 
     with Session(engine) as session:
         existing = session.exec(select(User).where(User.username == username)).first()
         if existing:
-            return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username already exists"})
+            return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username already exists", "show_signup": True})
         # create user
         user = User(username=username, hashed_password=get_password_hash(password))
         session.add(user)
