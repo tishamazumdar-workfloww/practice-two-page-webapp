@@ -126,6 +126,35 @@ async def post_login(request: Request, username: str = Form(...), password: str 
         response.set_cookie(key="access_token", value=access_token, httponly=True, max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
         return response
 
+
+@app.post("/signup")
+async def post_signup(request: Request, username: str = Form(...), password: str = Form(...), password2: str = Form(...)):
+    # server-side validation
+    if not username or not username.strip():
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username is required"})
+    if not password or not password.strip():
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password is required"})
+    if password != password2:
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Passwords do not match"})
+    if len(password) < 6:
+        return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Password must be at least 6 characters"})
+
+    with Session(engine) as session:
+        existing = session.exec(select(User).where(User.username == username)).first()
+        if existing:
+            return templates.TemplateResponse("login.html", {"request": request, "error_signup": "Username already exists"})
+        # create user
+        user = User(username=username, hashed_password=get_password_hash(password))
+        session.add(user)
+        session.commit()
+
+    # auto-login after signup
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": username}, expires_delta=access_token_expires)
+    response = RedirectResponse(url="/upload", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(key="access_token", value=access_token, httponly=True, max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    return response
+
 @app.get("/logout")
 async def logout():
     response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)

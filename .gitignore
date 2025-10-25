@@ -3,3 +3,5 @@ __pycache__/
 venv/
 uploads/
 *.db
+backups/
+*.sqlite3
