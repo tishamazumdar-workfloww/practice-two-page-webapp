@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Upload{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-5">
+    <h3>Upload File</h3>
+    <form id="uploadForm" method="post" action="/upload" enctype="multipart/form-data" novalidate>
+      <div class="mb-3">
+        <label for="topic" class="form-label">Topic</label>
+        <input type="text" class="form-control" id="topic" name="topic" required>
+      </div>
+      <div class="mb-3">
+        <label for="upload_file" class="form-label">File (.pdf, .docx, .mp4)</label>
+        <input class="form-control" type="file" id="upload_file" name="upload_file" required>
+      </div>
+      <button type="submit" class="btn btn-success">Upload</button>
+    </form>
+
+    <hr>
+    <div class="mb-3">
+      <input class="form-control" id="searchBox" placeholder="Search by filename or topic">
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    <h3>Your Uploads</h3>
+    <div id="filesContainer">
+      <table class="table table-striped" id="filesTable">
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>Topic</th>
+            <th>Type</th>
+            <th>Upload Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in files %}
+          <tr>
+            <td class="fname">{{ f.original_filename }}</td>
+            <td class="ftopic">{{ f.topic }}</td>
+            <td>{{ f.file_type }}</td>
+            <td>{{ f.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+              {% if f.file_type == 'pdf' %}
+              <button class="btn btn-sm btn-primary preview-btn" data-url="/uploads/{{ f.filename }}" data-type="pdf">Preview</button>
+              {% elif f.file_type == 'mp4' %}
+              <button class="btn btn-sm btn-primary preview-btn" data-url="/uploads/{{ f.filename }}" data-type="mp4">Preview</button>
+              {% else %}
+              <span class="text-muted">No preview</span>
+              {% endif %}
+              <a class="btn btn-sm btn-secondary" href="/uploads/{{ f.filename }}" download>Download</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="previewArea" class="mt-3"></div>
+  </div>
+</div>
+{% endblock %}

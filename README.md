@@ -1,195 +1,35 @@
 # 📘 Two-Page Web Application — Login & Upload System
 
-## 📖 Overview
+## Two-Page Web App (FastAPI)
 
-This project is a **practice full-stack web application** built using **Python (Flask)** and **HTML/CSS/JavaScript**.
-It demonstrates a complete end-to-end workflow:
+Simple two-page app with Login and Upload pages using FastAPI, Jinja2 templates, and SQLite (SQLModel).
 
-* User login and authentication
-* File uploads (PDFs, documents, videos)
-* Data validation and backend storage
-* Display and search functionality
-* User-specific file access
-* Inline preview of uploaded materials
+Features:
+- Login with username/password (default user: testuser / testpass)
+- JWT-based auth stored as HttpOnly cookie
+- Upload PDFs, DOCX, MP4 files (server + client validation)
+- Store files in /uploads and metadata in SQLite `database.db`
+- Preview PDFs in iframe and MP4 using video tag
+- Search/filter by filename or topic
 
-The goal is to practice **core web development concepts** — backend logic, file handling, frontend integration, and validation — in a compact, real-world-style project.
+Quick start (Windows PowerShell):
 
----
+1. Create virtualenv and install dependencies
 
-## 🧩 Features
-
-### 1. **Login Page**
-
-* Username and password authentication.
-* Prevents unauthorized access to upload page.
-* Displays appropriate success/error messages.
-* Frontend and backend validation.
-
-### 2. **Upload Page**
-
-* Upload PDFs, documents, or videos under a topic name.
-* Validates file type and topic field before submission.
-* Saves uploaded files to the backend (`/uploads` folder).
-* Stores metadata in a SQLite database (file name, type, topic, user, upload date).
-
-### 3. **Display Section**
-
-* Shows all uploaded materials in a structured table/grid.
-* Columns: File name, Topic, Type, Upload Date, Actions (Preview / Download).
-* Integrated search bar to filter by file name or topic.
-
-### 4. **User-Specific Uploads**
-
-* Each logged-in user can only see the files they uploaded.
-* Uploads are filtered by user ID or username.
-
-### 5. **Preview Capability**
-
-* Inline preview for uploaded files:
-
-  * PDFs displayed via `<iframe>`
-  * Videos displayed via `<video>` tag
-* Option to download files if needed.
-
-### 6. **Validation**
-
-* **Frontend:** Checks empty fields, invalid file types, and large sizes.
-* **Backend:** Confirms allowed extensions and user session validity.
-* Provides clear error messages and form feedback.
-
----
-
-## ⚙️ Tech Stack
-
-| Layer            | Technology Used           |
-| ---------------- | ------------------------- |
-| **Frontend**     | HTML, CSS, JavaScript     |
-| **Backend**      | Python (Flask)            |
-| **Database**     | SQLite                    |
-| **File Storage** | Local folder (`/uploads`) |
-
----
-
-## 🧠 What You’ll Learn
-
-* How to implement **user authentication** in Flask.
-* How to handle **file uploads** securely in Python.
-* How to design **database models** for users and uploads.
-* How to integrate **frontend and backend** for dynamic interactions.
-* How to add **search and filtering** using simple queries.
-* How to manage **user-specific data** and improve UX with inline previews.
-
----
-
-## 🏗️ Project Structure
-
-```
-project/
-│
-├── app.py                # Flask application (routes, logic)
-├── database.db           # SQLite database
-├── /templates
-│   ├── login.html
-│   ├── upload.html
-│
-├── /static
-│   ├── style.css
-│   ├── script.js
-│
-├── /uploads              # Folder for uploaded files
-│
-└── README.md
+```powershell
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
----
+2. Run the app
 
-## 🚀 How to Run Locally
+```powershell
+python -m uvicorn main:app --reload
+```
 
-1. **Clone or create project folder**
+3. Open http://127.0.0.1:8000/login
 
-   ```bash
-   git clone <your-repo-url>
-   cd project
-   ```
-
-2. **Set up environment**
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # for macOS/Linux
-   venv\Scripts\activate      # for Windows
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   pip install flask
-   ```
-
-4. **Run the application**
-
-   ```bash
-   python app.py
-   ```
-
-5. **Access in browser**
-
-   ```
-   http://127.0.0.1:5000
-   ```
-
----
-
-## 🧱 Database Schema
-
-### `users` table
-
-| Field    | Type    | Description     |
-| -------- | ------- | --------------- |
-| id       | INTEGER | Primary key     |
-| username | TEXT    | Unique username |
-| password | TEXT    | Hashed password |
-
-### `uploads` table
-
-| Field       | Type    | Description                |
-| ----------- | ------- | -------------------------- |
-| id          | INTEGER | Primary key                |
-| filename    | TEXT    | File name stored on disk   |
-| topic       | TEXT    | Topic or category          |
-| file_type   | TEXT    | PDF / Video / DOC          |
-| upload_date | TEXT    | Timestamp                  |
-| user_id     | INTEGER | Foreign key to users table |
-
----
-
-## 🧩 Validation Rules
-
-* Allowed file types: `.pdf`, `.docx`, `.mp4`
-* Maximum size: configurable (e.g., 50 MB)
-* Topic field must not be empty
-* Uploads restricted to logged-in users only
-
----
-
-## 🌟 Future Enhancements
-
-* [ ] Add user registration flow (signup).
-* [ ] Add file deletion and editing features.
-* [ ] Move file storage to cloud (AWS S3 or Firebase).
-* [ ] Add analytics dashboard for uploads.
-* [ ] Add AI-based file tagging or automatic topic detection.
-
----
-
-## 📦 Outcome
-
-By completing this project, you’ll have a **fully functional mini web application** that demonstrates:
-
-* End-to-end system design
-* Secure authentication
-* File management
-* User-specific data access
-* Functional search and preview UX
-
-It serves as an excellent **portfolio-ready project** and a foundation for more advanced web development tasks.
+Notes:
+- Uploaded files go to the `uploads` directory.
+- Change `SECRET_KEY` in `main.py` to a secure random value in production.
+- This is a minimal demo—consider adding CSRF protection, stronger session handling, and production-ready file scanning for untrusted uploads.
