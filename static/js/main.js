@@ -135,6 +135,12 @@
                     dl.href = '/files/' + resp.id + '/download';
                     dl.textContent = 'Download';
                     actionsDiv.appendChild(dl);
+                    // Delete button
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'btn-delete';
+                    delBtn.setAttribute('data-id', resp.id);
+                    delBtn.textContent = 'Delete';
+                    actionsDiv.appendChild(delBtn);
                     tdActions.appendChild(actionsDiv);
 
                     tr.appendChild(tdName);
@@ -331,6 +337,36 @@
       previewArea.appendChild(video);
       window.scrollTo({ top: video.offsetTop - 20, behavior: 'smooth' });
     }
+  });
+
+  // delete (delegated) - confirm and call backend DELETE, then remove row on success
+  document.addEventListener('click', function(e){
+    const del = e.target.closest('.btn-delete');
+    if(!del) return;
+    e.preventDefault();
+    const id = del.getAttribute('data-id');
+    if(!id) return;
+    if(!confirm('Are you sure you want to delete this file?')) return;
+    // disable while in flight
+    del.disabled = true;
+    fetch('/delete/' + id, { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(async (res) => {
+        let json = {};
+        try{ json = await res.json(); }catch(e){}
+        if(res.ok && json.status === 'ok'){
+          const tr = del.closest('tr');
+          if(tr) tr.remove();
+        } else {
+          // show error
+          const msg = json && json.detail ? json.detail : 'Deletion failed';
+          try{ showNotice(msg); }catch(err){ alert(msg); }
+          del.disabled = false;
+        }
+      })
+      .catch((err) => {
+        try{ showNotice('Deletion failed (network error)'); }catch(e){ alert('Deletion failed (network error)'); }
+        del.disabled = false;
+      });
   });
 
   // drag and drop

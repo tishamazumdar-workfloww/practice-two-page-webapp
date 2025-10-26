@@ -262,3 +262,30 @@ async def preview_file(file_id: int, current_user: User = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Preview not available for this file type")
 
     return FileResponse(path=file_path, media_type=media_type)
+
+
+@app.delete("/delete/{file_id}")
+async def delete_file(file_id: int, request: Request, current_user: User = Depends(get_current_user)):
+    """Delete a file: remove DB record and delete the file from disk."""
+    if not current_user:
+        return RedirectResponse(url="/login")
+    with Session(engine) as session:
+        meta = session.get(FileMeta, file_id)
+        if not meta or meta.user_id != current_user.id:
+            return JSONResponse({"status": "error", "detail": "File not found"}, status_code=404)
+        file_path = os.path.join(UPLOAD_DIR, meta.filename)
+        # attempt to remove file from disk; if missing, continue to remove DB record
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            # if we couldn't delete the file, report error
+            return JSONResponse({"status": "error", "detail": "Could not delete file from disk"}, status_code=500)
+        # remove metadata record
+        try:
+            session.delete(meta)
+            session.commit()
+        except Exception as e:
+            return JSONResponse({"status": "error", "detail": "Could not remove database record"}, status_code=500)
+
+    return JSONResponse({"status": "ok"})

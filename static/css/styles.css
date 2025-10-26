@@ -173,6 +173,10 @@ body.auth-page .navbar{ display: none !important; }
 .btn-preview:hover{ background:#60A5FA; color:#fff }
 .btn-download{ background:#71717A; color:#fff; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; border:none }
 .btn-download:hover{ background:#52525B }
+
+/* Delete button: red, consistent sizing with other action buttons */
+.btn-delete{ background:#ef4444; color:#fff; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; border:none }
+.btn-delete:hover{ background:#dc2626 }
 .no-preview{ color:#A1A1AA; font-size:13px; font-style:italic }
 
 .dv-progress{ height:8px; background:#F3F4F6; border-radius:8px; overflow:hidden; margin-top:12px }
