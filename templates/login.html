@@ -1,58 +1,62 @@
 {% extends 'base.html' %}
-{% block title %}Authenticate{% endblock %}
+{% block title %}DocuVault Authenticate{% endblock %}
 {% block content %}
 
+<div class="dv-circle top-right"></div>
+<div class="dv-circle bottom-left"></div>
+
 <div class="d-flex justify-content-center align-items-center vh-100">
-  <div class="card p-4" style="width: 420px;">
-    <div class="d-flex justify-content-between mb-3">
-      <div class="h5 m-0">DocuVault</div>
-      <div class="btn-group btn-group-sm" role="group" aria-label="auth toggle">
-        <button id="btnLogin" type="button" class="btn btn-outline-primary active">Login</button>
-        <button id="btnSignup" type="button" class="btn btn-outline-secondary">Sign up</button>
+  <div class="dv-logo-abs">DocuVault</div>
+  <div class="dv-auth-card">
+    <div class="dv-auth-header">
+      <div class="dv-brand">DocuVault</div>
+      <div class="dv-tabwrap mt-3" role="tablist" aria-label="Auth tabs">
+        <div id="tabLogin" class="dv-tab active" role="tab">Login</div>
+        <div id="tabSignup" class="dv-tab" role="tab">Sign up</div>
       </div>
     </div>
 
     <div id="loginPane">
-      <h5 class="mb-3">Sign in</h5>
+      <div class="dv-form-title">Sign in</div>
       {% if error %}
         <div class="alert alert-danger">{{ error }}</div>
       {% endif %}
       <form method="post" action="/login" novalidate>
-        <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" class="form-control" id="username" name="username" required>
+        <div class="dv-field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" class="dv-input" required>
         </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password" required>
+        <div class="dv-field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" class="dv-input" required>
         </div>
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary">Login</button>
+          <button type="submit" class="dv-btn-primary">Login</button>
         </div>
-        <p class="mt-3 text-muted small">Use <strong>testuser</strong> / <strong>testpass</strong> to login (default account).</p>
+        <p class="dv-helper">Use <strong>testuser</strong> / <strong>testpass</strong> to login (default account).</p>
       </form>
     </div>
 
     <div id="signupPane" style="display:none;">
-      <h5 class="mb-3">Create account</h5>
+      <div class="dv-form-title">Create account</div>
       {% if error_signup %}
         <div class="alert alert-danger">{{ error_signup }}</div>
       {% endif %}
       <form method="post" action="/signup" novalidate>
-        <div class="mb-3">
-          <label for="su_username" class="form-label">Username</label>
-          <input type="text" class="form-control" id="su_username" name="username" required>
+        <div class="dv-field">
+          <label for="su_username">Username</label>
+          <input type="text" id="su_username" name="username" class="dv-input" required>
         </div>
-        <div class="mb-3">
-          <label for="su_password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="su_password" name="password" required>
+        <div class="dv-field">
+          <label for="su_password">Password</label>
+          <input type="password" id="su_password" name="password" class="dv-input" required>
         </div>
-        <div class="mb-3">
-          <label for="su_password2" class="form-label">Confirm password</label>
-          <input type="password" class="form-control" id="su_password2" name="password2" required>
+        <div class="dv-field">
+          <label for="su_password2">Confirm password</label>
+          <input type="password" id="su_password2" name="password2" class="dv-input" required>
         </div>
         <div class="d-grid">
-          <button type="submit" class="btn btn-success">Sign up</button>
+          <button type="submit" class="dv-btn-primary" style="background:var(--accent)">Sign up</button>
         </div>
       </form>
     </div>
@@ -60,27 +64,32 @@
 </div>
 
 <script>
+  // mark page as auth so nav hides
+  document.addEventListener('DOMContentLoaded', function(){ document.body.classList.add('auth-page'); });
+</script>
+
+<script>
   document.addEventListener('DOMContentLoaded', function(){
-    const btnLogin = document.getElementById('btnLogin');
-    const btnSignup = document.getElementById('btnSignup');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
     const loginPane = document.getElementById('loginPane');
     const signupPane = document.getElementById('signupPane');
 
     function showLogin(){
       loginPane.style.display = '';
       signupPane.style.display = 'none';
-      btnLogin.classList.add('active');
-      btnSignup.classList.remove('active');
+      tabLogin.classList.add('active');
+      tabSignup.classList.remove('active');
     }
     function showSignup(){
       loginPane.style.display = 'none';
       signupPane.style.display = '';
-      btnLogin.classList.remove('active');
-      btnSignup.classList.add('active');
+      tabLogin.classList.remove('active');
+      tabSignup.classList.add('active');
     }
 
-    btnLogin.addEventListener('click', showLogin);
-    btnSignup.addEventListener('click', showSignup);
+    tabLogin.addEventListener('click', showLogin);
+    tabSignup.addEventListener('click', showSignup);
 
     // If server requested showing signup (validation error or flag), show it
     {% if show_signup or error_signup %}
