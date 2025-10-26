@@ -46,6 +46,8 @@
   if(progressBar) progressBar.style.display = 'block';
       if(uploadBtn) uploadBtn.disabled = true;
 
+  // inline upload status element removed
+
       xhr.upload.addEventListener('progress', function(ev){
         if(ev.lengthComputable && progressFill){
           const pct = Math.round((ev.loaded / ev.total) * 100);
@@ -184,13 +186,6 @@
       return (size / Math.pow(1024, i)).toFixed(i?1:0) + ' ' + sizes[i];
     }
 
-    function fileIconForExt(ext){
-      if(ext === '.pdf') return '📄';
-      if(ext === '.mp4') return '🎬';
-      if(ext === '.docx') return '📃';
-      return '📁';
-    }
-
     function renderFileCard(file){
       const dz = document.getElementById('dropZone');
       if(!dz) return;
@@ -198,83 +193,85 @@
       const size = humanFileSize(file.size);
       const ext = name.substring(name.lastIndexOf('.')).toLowerCase();
       const icon = fileIconForExt(ext);
+      // keep the dashed drop zone but show a compact summary inside it
       dz.classList.add('has-file');
-      dz.innerHTML = `
-        <div class="dv-file-card">
-          <div class="dv-file-meta">
-            <div class="dv-file-icon">${icon}</div>
-            <div class="dv-file-info">
-              <div class="dv-file-name">${name}</div>
-              <div class="dv-file-size">${size} · ${ext.replace('.','').toUpperCase()}</div>
-            </div>
+      // hide the original prompts
+      const chooseEl = dz.querySelector('.choose');
+      const hintEl = dz.querySelector('.hint');
+      if(chooseEl) chooseEl.style.display = 'none';
+      if(hintEl) hintEl.style.display = 'none';
+
+      // remove existing summary if present
+      const existing = dz.querySelector('.dv-file-summary');
+      if(existing) existing.remove();
+
+      const summary = document.createElement('div');
+      summary.className = 'dv-file-summary';
+      summary.innerHTML = `
+        <div class="dv-file-meta-inline">
+          <div class="dv-file-icon">${icon}</div>
+          <div class="dv-file-info">
+            <div class="dv-file-name">${name}</div>
+            <div class="dv-file-size">${size} · ${ext.replace('.','').toUpperCase()}</div>
           </div>
-          <div class="dv-file-actions">
-            <button type="button" class="dv-change-file">Change file</button>
-            <button type="button" class="dv-remove-file">Remove</button>
-          </div>
-          <input type="file" id="upload_file" name="upload_file" style="display:none" />
+        </div>
+        <div class="dv-file-actions-inline">
+          <button type="button" class="dv-change-file">Change</button>
+          <button type="button" class="dv-remove-file">Remove</button>
         </div>
       `;
+      dz.appendChild(summary);
 
-      // rebind fileInput to the new hidden input inside the card so change opens native dialog
-      const newInput = dz.querySelector('input[type=file]');
-      if(newInput){
-        fileInput = newInput;
-        fileInput.addEventListener('change', function(e){
-          const nf = this.files[0];
-          if(!nf) return;
-          // smooth update: add small updating class then re-render card
-          const card = dz.querySelector('.dv-file-card');
-          if(card){
-            card.classList.add('updating');
-            setTimeout(()=>{
-              pendingFile = nf;
-              renderFileCard(nf);
-              clearNotice();
-            }, 160);
-          } else {
-            pendingFile = nf;
-            renderFileCard(nf);
-            clearNotice();
-          }
-        });
-      }
-
-      // wire buttons
-      const changeBtn = dz.querySelector('.dv-change-file');
-      const removeBtn = dz.querySelector('.dv-remove-file');
+      // wire buttons to existing fileInput (do not recreate input)
+      const changeBtn = summary.querySelector('.dv-change-file');
+      const removeBtn = summary.querySelector('.dv-remove-file');
       if(changeBtn) changeBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
       if(removeBtn) removeBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.value = ''; pendingFile = null; revertDropZone(); clearNotice(); });
+
+  // smooth adjust filename size
+  adjustFileNameFont(dz);
     }
+
+    // adjust the file name font-size so it fits without truncation
+    function adjustFileNameFont(dz){
+      if(!dz) dz = document.getElementById('dropZone');
+      if(!dz) return;
+      const nameEl = dz.querySelector('.dv-file-name');
+      if(!nameEl) return;
+      // reset to default size first
+      nameEl.style.whiteSpace = 'nowrap';
+      nameEl.style.fontSize = '';
+      // compute available width
+      const available = nameEl.clientWidth;
+      let computed = window.getComputedStyle(nameEl);
+      let fontSize = parseFloat(computed.fontSize) || 16;
+      const minSize = 11; // keep readable
+      // if it already fits, do nothing
+      if(nameEl.scrollWidth <= available) return;
+      // decrease font size until it fits or reaches min
+      while(fontSize > minSize && nameEl.scrollWidth > available){
+        fontSize = Math.max(minSize, fontSize - 1);
+        nameEl.style.fontSize = fontSize + 'px';
+      }
+    }
+
+    // re-adjust on window resize when a file card is visible
+    window.addEventListener('resize', function(){
+      const dz = document.getElementById('dropZone');
+      if(dz && dz.classList.contains('has-file')) adjustFileNameFont(dz);
+    });
 
     function revertDropZone(){
       const dz = document.getElementById('dropZone');
       if(!dz) return;
       dz.classList.remove('has-file');
-      dz.innerHTML = `
-        <div><span class="choose">Choose file</span> or drag and drop</div>
-        <div class="hint">Supported: PDF, DOCX, MP4</div>
-        <input type="file" id="upload_file" name="upload_file" style="display:none" />
-      `;
-      // reattach fileInput reference to the new input element
-      const newInput = dz.querySelector('input[type=file]');
-      if(newInput){
-        // replace fileInput element reference and wire change
-        fileInput = newInput;
-        fileInput.addEventListener('change', function(e){
-          const f = this.files[0];
-          pendingFile = f || null;
-          clearNotice();
-          if(!f) return;
-          if(!topicInput.value.trim()){
-            showNotice('Topic is empty — enter a topic and click Upload to start.');
-          } else {
-            showNotice('File selected. Click Upload to start.');
-          }
-        });
-        // re-wire drop zone click
-        dz.addEventListener('click', () => fileInput.click());
-      }
+      // remove summary and show original prompts
+      const existing = dz.querySelector('.dv-file-summary');
+      if(existing) existing.remove();
+      const chooseEl = dz.querySelector('.choose');
+      const hintEl = dz.querySelector('.hint');
+      if(chooseEl) chooseEl.style.display = '';
+      if(hintEl) hintEl.style.display = '';
     }
 
     // when a file is chosen, remember it but do NOT start upload; user must click Upload

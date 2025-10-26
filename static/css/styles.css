@@ -130,8 +130,22 @@ body.auth-page .navbar{ display: none !important; }
 .dv-file-card.updating{ transform: scale(.98); opacity: .6 }
 .dv-file-meta{ display:flex; align-items:center; gap:12px }
 .dv-file-icon{ font-size:28px; width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--bg-2) }
-.dv-file-info .dv-file-name{ font-weight:600; color:var(--strong) }
+.dv-file-info{ min-width: 0; }
+.dv-file-info .dv-file-name{ font-weight:600; color:var(--strong); display:inline-block; min-width:0; max-width:100%;
+  /* responsive font-size that scales but stays within readable bounds */
+  font-size: clamp(12px, 1.6vw, 16px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 140ms ease;
+}
 .dv-file-info .dv-file-size{ font-size:13px; color:var(--muted) }
+
+/* Use container queries so font-size can adapt to the actual container width (modern browsers) */
+.dv-drop{ container-type: inline-size; }
+@container (max-width: 260px) {
+  .dv-file-info .dv-file-name{ font-size: clamp(10px, 2.2vw, 13px); }
+}
+@container (min-width: 800px) {
+  .dv-file-info .dv-file-name{ font-size: clamp(13px, 1.2vw, 18px); }
+}
 .dv-file-actions{ display:flex; gap:8px }
 .dv-file-actions .dv-change-file, .dv-file-actions .dv-remove-file{ padding:8px 12px; border-radius:8px; border:1px solid #E5E7EB; background:transparent; cursor:pointer; font-size:13px }
 .dv-file-actions .dv-change-file:hover, .dv-file-actions .dv-remove-file:hover{ background:#fff }

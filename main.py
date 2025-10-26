@@ -6,8 +6,6 @@ from sqlmodel import SQLModel, Field, create_engine, Session, select
 from typing import Optional, List
 import os
 from datetime import datetime, timedelta
-# Prevent passlib from trying to initialize bcrypt backend which may be a broken/incorrect
-# 'bcrypt' package in some environments. Disable bcrypt handler so we can use pbkdf2_sha256.
 os.environ.setdefault("PASSLIB_NO_BCRYPT", "1")
 from passlib.context import CryptContext
 from jose import JWTError, jwt
