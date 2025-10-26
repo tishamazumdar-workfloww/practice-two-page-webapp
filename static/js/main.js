@@ -9,12 +9,17 @@
   const previewArea = document.getElementById('previewArea');
 
   if(form){
-    // intercept submit and perform AJAX upload with progress
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      const file = fileInput.files[0];
+    // helper to perform AJAX upload with progress for a given File
+    function startUpload(file){
       const topic = topicInput.value.trim();
-      if(!topic){ alert('Topic cannot be empty'); return; }
+      if(!topic){
+        // prompt user to enter topic before uploading
+        topicInput.focus();
+        const orig = topicInput.value;
+        // small inline notice - use alert for now
+        alert('Please enter a topic before selecting a file');
+        return;
+      }
       if(!file){ alert('Please select a file'); return; }
       const name = file.name.toLowerCase();
       const ext = name.substring(name.lastIndexOf('.'));
@@ -27,24 +32,39 @@
       const xhr = new XMLHttpRequest();
       const progressBar = document.getElementById('uploadProgress');
       const progressFill = progressBar ? progressBar.querySelector('span') : null;
+      const uploadBtn = form.querySelector('button[type=submit]');
       if(progressBar) progressBar.style.display = 'block';
+      if(uploadBtn) uploadBtn.disabled = true;
 
       xhr.upload.addEventListener('progress', function(ev){
         if(ev.lengthComputable && progressFill){
           const pct = Math.round((ev.loaded / ev.total) * 100);
           progressFill.style.width = pct + '%';
+          progressFill.textContent = pct + '%';
         }
       });
 
       xhr.onreadystatechange = function(){
         if(xhr.readyState === 4){
-          // on success redirect to /upload to refresh list
+          // on success refresh list
           window.location = '/upload';
         }
       };
 
       xhr.open('POST', form.action);
       xhr.send(fd);
+    }
+
+    // intercept submit for compatibility (user can still click Upload)
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      startUpload(fileInput.files[0]);
+    });
+
+    // start upload immediately when a file is chosen
+    fileInput.addEventListener('change', function(e){
+      const f = this.files[0];
+      if(f) startUpload(f);
     });
   }
 
