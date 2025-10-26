@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlmodel import SQLModel, Field, create_engine, Session, select
@@ -208,3 +208,44 @@ async def post_upload(request: Request, topic: str = Form(...), upload_file: Upl
 @app.get("/ping")
 async def ping():
     return {"status": "ok"}
+
+
+# Download and preview endpoints for files
+@app.get("/files/{file_id}/download")
+async def download_file(file_id: int, current_user: User = Depends(get_current_user)):
+    if not current_user:
+        return RedirectResponse(url="/login")
+    with Session(engine) as session:
+        meta = session.get(FileMeta, file_id)
+        if not meta or meta.user_id != current_user.id:
+            raise HTTPException(status_code=404, detail="File not found")
+    file_path = os.path.join(UPLOAD_DIR, meta.filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File missing on server")
+    # return as download with original filename
+    return FileResponse(path=file_path, media_type="application/octet-stream", filename=meta.original_filename)
+
+
+@app.get("/files/{file_id}/preview")
+async def preview_file(file_id: int, current_user: User = Depends(get_current_user)):
+    """Serve file for inline preview (PDF/MP4). Other types will return 404."""
+    if not current_user:
+        return RedirectResponse(url="/login")
+    with Session(engine) as session:
+        meta = session.get(FileMeta, file_id)
+        if not meta or meta.user_id != current_user.id:
+            raise HTTPException(status_code=404, detail="File not found")
+    file_path = os.path.join(UPLOAD_DIR, meta.filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File missing on server")
+
+    # serve with correct media type for inline preview
+    if meta.file_type == 'pdf':
+        media_type = 'application/pdf'
+    elif meta.file_type == 'mp4':
+        media_type = 'video/mp4'
+    else:
+        # no inline preview available for other types
+        raise HTTPException(status_code=404, detail="Preview not available for this file type")
+
+    return FileResponse(path=file_path, media_type=media_type)
