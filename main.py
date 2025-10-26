@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File, status
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlmodel import SQLModel, Field, create_engine, Session, select
@@ -202,6 +202,21 @@ async def post_upload(request: Request, topic: str = Form(...), upload_file: Upl
         )
         session.add(meta)
         session.commit()
+        # ensure attributes are loaded while instance is still bound
+        session.refresh(meta)
+        # build a JSON-safe payload with extra metadata so frontend can update the table live
+        resp_payload = {
+            "status": "ok",
+            "id": meta.id,
+            "filename": meta.original_filename,
+            "file_type": meta.file_type,
+            "topic": meta.topic,
+            "upload_date": meta.upload_date.strftime('%Y-%m-%d %H:%M:%S')
+        }
+    # If this was an AJAX/XHR upload, return JSON so the frontend can show an inline success message
+    xreq = request.headers.get('x-requested-with')
+    if xreq and xreq.lower() == 'xmlhttprequest':
+        return JSONResponse(resp_payload)
     return RedirectResponse(url="/upload", status_code=status.HTTP_303_SEE_OTHER)
 
 # small health check

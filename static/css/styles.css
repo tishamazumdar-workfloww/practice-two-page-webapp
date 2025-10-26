@@ -124,6 +124,18 @@ body.auth-page .navbar{ display: none !important; }
 .dv-drop .choose{ color:var(--accent); font-weight:600 }
 .dv-drop .hint{ margin-top:8px; font-size:13px; color:#A1A1AA }
 
+/* Selected file card shown inside the drop zone */
+.dv-drop.has-file{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px }
+.dv-file-card{ display:flex; align-items:center; justify-content:space-between; width:100% }
+.dv-file-card.updating{ transform: scale(.98); opacity: .6 }
+.dv-file-meta{ display:flex; align-items:center; gap:12px }
+.dv-file-icon{ font-size:28px; width:46px; height:46px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--bg-2) }
+.dv-file-info .dv-file-name{ font-weight:600; color:var(--strong) }
+.dv-file-info .dv-file-size{ font-size:13px; color:var(--muted) }
+.dv-file-actions{ display:flex; gap:8px }
+.dv-file-actions .dv-change-file, .dv-file-actions .dv-remove-file{ padding:8px 12px; border-radius:8px; border:1px solid #E5E7EB; background:transparent; cursor:pointer; font-size:13px }
+.dv-file-actions .dv-change-file:hover, .dv-file-actions .dv-remove-file:hover{ background:#fff }
+
 .dv-upload-btn{ width:100%; padding:14px; background:var(--accent); color:#fff; border-radius:10px; font-size:15px; font-weight:600; margin-top:8px; border:none }
 .dv-upload-btn:hover{ background:#8D9B75; transform:translateY(-1px); box-shadow:0 4px 12px rgba(163,177,138,0.3) }
 
