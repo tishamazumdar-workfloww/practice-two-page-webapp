@@ -100,3 +100,54 @@ body.auth-page .navbar{ display: none !important; }
 /* Preview area and small table tweaks remain intact */
 #previewArea iframe, #previewArea video { width:100%; max-height:480px }
 @media (max-width:768px){ #filesTable td, #filesTable th{ font-size:0.9rem } }
+
+/* Dashboard / Upload page styles */
+.dv-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; padding:0 8px; }
+.dv-header .dv-logo{ font-size:20px; font-weight:600; color:#3F3F46 }
+.dv-header .dv-user{ display:flex; gap:20px; align-items:center }
+.dv-username{ font-size:14px; color:var(--muted); font-weight:500 }
+.dv-logout{ padding:8px 20px; border:1.5px solid #E5E7EB; border-radius:8px; background:transparent; cursor:pointer }
+.dv-logout:hover{ background:#fff; border-color:var(--accent); color:var(--accent) }
+
+.dv-main{ max-width:1400px; margin:0 auto; display:grid; grid-template-columns: 400px 1fr; gap:32px; padding:0 24px }
+@media (max-width:1200px){ .dv-main{ grid-template-columns: 1fr; } .dv-left{ position:relative; top:0 } }
+
+.dv-card{ background:var(--card-bg); border-radius:16px; padding:32px; box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.02) }
+.dv-left{ position:sticky; top:24px; height:fit-content }
+.dv-title{ font-size:22px; font-weight:600; color:var(--strong); margin-bottom:24px }
+
+.dv-field label{ margin-bottom:8px }
+.dv-input.file-topic{ padding:12px 16px; border-radius:10px; border:1.5px solid #E5E7EB; background:var(--bg-1); width:100%; }
+
+.dv-drop{ padding:40px 20px; border:2px dashed #D4D4D1; border-radius:12px; background:var(--bg-1); cursor:pointer; text-align:center }
+.dv-drop:hover{ border-color:var(--accent); background:var(--bg-2) }
+.dv-drop .choose{ color:var(--accent); font-weight:600 }
+.dv-drop .hint{ margin-top:8px; font-size:13px; color:#A1A1AA }
+
+.dv-upload-btn{ width:100%; padding:14px; background:var(--accent); color:#fff; border-radius:10px; font-size:15px; font-weight:600; margin-top:8px; border:none }
+.dv-upload-btn:hover{ background:#8D9B75; transform:translateY(-1px); box-shadow:0 4px 12px rgba(163,177,138,0.3) }
+
+.dv-right .dv-title{ margin-bottom:16px }
+.dv-search{ position:relative; margin-bottom:24px }
+.dv-search input{ width:100%; padding:12px 16px 12px 44px; border-radius:10px; border:1.5px solid #E5E7EB }
+.dv-search svg{ position:absolute; left:16px; top:50%; transform:translateY(-50%); width:18px; height:18px; stroke:#A1A1AA }
+.dv-search input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(163,177,138,0.1) }
+
+.dv-table{ width:100%; border-collapse:separate; border-spacing:0 }
+.dv-table thead th{ background:var(--bg-1); font-size:13px; font-weight:600; color:#3F3F46; text-transform:uppercase; letter-spacing:0.5px; padding:16px; text-align:left; border-bottom:1.5px solid #E5E7EB }
+.dv-table thead th:first-child{ border-radius:10px 0 0 0 }
+.dv-table thead th:last-child{ border-radius:0 10px 0 0 }
+.dv-table tbody td{ padding:20px 16px; font-size:14px; color:#3F3F46; border-bottom:1px solid #F5F5F4 }
+.dv-table tbody tr:hover{ background:var(--bg-1) }
+
+.dv-badge{ display:inline-block; padding:4px 10px; background:var(--bg-2); color:var(--muted); border-radius:6px; font-size:12px; font-weight:500; text-transform:uppercase }
+
+.dv-actions{ display:flex; gap:8px }
+.btn-preview{ background:#93C5FD; color:#1E3A8A; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; border:none }
+.btn-preview:hover{ background:#60A5FA; color:#fff }
+.btn-download{ background:#71717A; color:#fff; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; border:none }
+.btn-download:hover{ background:#52525B }
+.no-preview{ color:#A1A1AA; font-size:13px; font-style:italic }
+
+.dv-progress{ height:8px; background:#F3F4F6; border-radius:8px; overflow:hidden; margin-top:12px }
+.dv-progress > span{ display:block; height:100%; width:0%; background:var(--accent) }

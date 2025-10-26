@@ -9,26 +9,42 @@
   const previewArea = document.getElementById('previewArea');
 
   if(form){
+    // intercept submit and perform AJAX upload with progress
     form.addEventListener('submit', function(e){
+      e.preventDefault();
       const file = fileInput.files[0];
       const topic = topicInput.value.trim();
-      if(!topic){
-        e.preventDefault();
-        alert('Topic cannot be empty');
-        return;
-      }
-      if(!file){
-        e.preventDefault();
-        alert('Please select a file');
-        return;
-      }
+      if(!topic){ alert('Topic cannot be empty'); return; }
+      if(!file){ alert('Please select a file'); return; }
       const name = file.name.toLowerCase();
       const ext = name.substring(name.lastIndexOf('.'));
-      if(!allowed.includes(ext)){
-        e.preventDefault();
-        alert('Invalid file type. Allowed: ' + allowed.join(', '));
-        return;
-      }
+      if(!allowed.includes(ext)){ alert('Invalid file type. Allowed: ' + allowed.join(', ')); return; }
+
+      const fd = new FormData();
+      fd.append('topic', topic);
+      fd.append('upload_file', file);
+
+      const xhr = new XMLHttpRequest();
+      const progressBar = document.getElementById('uploadProgress');
+      const progressFill = progressBar ? progressBar.querySelector('span') : null;
+      if(progressBar) progressBar.style.display = 'block';
+
+      xhr.upload.addEventListener('progress', function(ev){
+        if(ev.lengthComputable && progressFill){
+          const pct = Math.round((ev.loaded / ev.total) * 100);
+          progressFill.style.width = pct + '%';
+        }
+      });
+
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          // on success redirect to /upload to refresh list
+          window.location = '/upload';
+        }
+      };
+
+      xhr.open('POST', form.action);
+      xhr.send(fd);
     });
   }
 
@@ -70,4 +86,17 @@
       window.scrollTo({ top: video.offsetTop - 20, behavior: 'smooth' });
     }
   });
+
+  // drag and drop
+  const dropZone = document.getElementById('dropZone');
+  if(dropZone){
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if(f) fileInput.files = e.dataTransfer.files;
+    });
+  }
 })();

@@ -1,64 +1,91 @@
 {% extends 'base.html' %}
-{% block title %}DocuVault Upload{% endblock %}
+{% block title %}Dashboard — Uploads{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-md-5">
-    <h3>Upload File</h3>
-    <form id="uploadForm" method="post" action="/upload" enctype="multipart/form-data" novalidate>
-      <div class="mb-3">
-        <label for="topic" class="form-label">Topic</label>
-        <input type="text" class="form-control" id="topic" name="topic" required>
-      </div>
-      <div class="mb-3">
-        <label for="upload_file" class="form-label">File (.pdf, .docx, .mp4)</label>
-        <input class="form-control" type="file" id="upload_file" name="upload_file" required>
-      </div>
-      <button type="submit" class="btn btn-success">Upload</button>
-    </form>
 
-    <hr>
-    <div class="mb-3">
-      <input class="form-control" id="searchBox" placeholder="Search by filename or topic">
-    </div>
+<header class="dv-header">
+  <div class="dv-logo">DocuVault</div>
+  <div class="dv-user">
+    {% if user %}
+      <div class="dv-username">{{ user.username }}</div>
+      <form method="get" action="/logout" style="display:inline">
+        <button type="submit" class="dv-logout">Logout</button>
+      </form>
+    {% endif %}
   </div>
+</header>
 
-  <div class="col-md-7">
-    <h3>Your Uploads</h3>
-    <div id="filesContainer">
-      <table class="table table-striped" id="filesTable">
-        <thead>
-          <tr>
-            <th>File Name</th>
-            <th>Topic</th>
-            <th>Type</th>
-            <th>Upload Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for f in files %}
-          <tr>
-            <td class="fname">{{ f.original_filename }}</td>
-            <td class="ftopic">{{ f.topic }}</td>
-            <td>{{ f.file_type }}</td>
-            <td>{{ f.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>
-              {% if f.file_type == 'pdf' %}
-              <button class="btn btn-sm btn-primary preview-btn" data-url="/uploads/{{ f.filename }}" data-type="pdf">Preview</button>
-              {% elif f.file_type == 'mp4' %}
-              <button class="btn btn-sm btn-primary preview-btn" data-url="/uploads/{{ f.filename }}" data-type="mp4">Preview</button>
-              {% else %}
-              <span class="text-muted">No preview</span>
-              {% endif %}
-              <a class="btn btn-sm btn-secondary" href="/uploads/{{ f.filename }}" download>Download</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+<main class="dv-main">
+  <aside class="dv-left">
+    <div class="dv-card">
+      <div class="dv-title">Upload File</div>
+      <form id="uploadForm" method="post" action="/upload" enctype="multipart/form-data" novalidate>
+        <div class="dv-field">
+          <label for="topic">Topic</label>
+          <input type="text" id="topic" name="topic" class="dv-input file-topic" required>
+        </div>
+
+        <label for="upload_file" class="dv-field" style="display:block; margin-bottom:12px;">File (.pdf, .docx, .mp4)</label>
+        <div id="dropZone" class="dv-drop" tabindex="0">
+          <div><span class="choose">Choose file</span> or drag and drop</div>
+          <div class="hint">Supported: PDF, DOCX, MP4</div>
+          <input type="file" id="upload_file" name="upload_file" style="display:none" />
+        </div>
+
+        <button type="submit" class="dv-upload-btn">Upload</button>
+
+        <div class="dv-progress" id="uploadProgress" style="display:none"><span></span></div>
+      </form>
     </div>
+  </aside>
 
-    <div id="previewArea" class="mt-3"></div>
-  </div>
-</div>
+  <section class="dv-right">
+    <div class="dv-card">
+      <div class="dv-title">Your Uploads</div>
+      <div class="dv-search">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="6" stroke="#A1A1AA" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="#A1A1AA" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="searchBox" placeholder="Search by filename or topic">
+      </div>
+
+      <div id="filesContainer">
+        <table class="dv-table" id="filesTable">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Topic</th>
+              <th>Type</th>
+              <th>Upload Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in files %}
+            <tr>
+              <td class="fname">{{ f.original_filename }}</td>
+              <td class="ftopic">{{ f.topic }}</td>
+              <td><span class="dv-badge">{{ f.file_type }}</span></td>
+              <td>{{ f.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td>
+                <div class="dv-actions">
+                {% if f.file_type == 'pdf' %}
+                  <button class="btn-preview preview-btn" data-url="/files/{{ f.id }}/preview" data-type="pdf">Preview</button>
+                {% elif f.file_type == 'mp4' %}
+                  <button class="btn-preview preview-btn" data-url="/files/{{ f.id }}/preview" data-type="mp4">Preview</button>
+                {% else %}
+                  <div class="no-preview">No preview</div>
+                {% endif %}
+                  <a class="btn-download" href="/files/{{ f.id }}/download">Download</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="previewArea" class="mt-3"></div>
+    </div>
+  </section>
+
+</main>
+
 {% endblock %}
