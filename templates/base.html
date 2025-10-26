@@ -28,7 +28,8 @@
     </nav>
 
     <div class="container mt-4">
-      {% if error %}
+      {# suppress the global top alert on the auth/login page because login.html renders its own inline alert #}
+      {% if error and request.url.path != '/login' %}
       <div class="alert alert-danger">{{ error }}</div>
       {% endif %}
       {% block content %}{% endblock %}

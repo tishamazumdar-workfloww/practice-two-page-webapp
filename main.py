@@ -109,7 +109,8 @@ async def root(request: Request):
 
 @app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "show_signup": False})
+    # Render the login page with empty error fields so a plain GET doesn't show previous errors
+    return templates.TemplateResponse("login.html", {"request": request, "show_signup": False, "error": None, "error_signup": None})
 
 @app.post("/login")
 async def post_login(request: Request, username: str = Form(...), password: str = Form(...)):

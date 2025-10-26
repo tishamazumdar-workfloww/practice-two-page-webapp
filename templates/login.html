@@ -33,7 +33,6 @@
         <div class="d-grid">
           <button type="submit" class="dv-btn-primary">Login</button>
         </div>
-        <p class="dv-helper">Use <strong>testuser</strong> / <strong>testpass</strong> to login (default account).</p>
       </form>
     </div>
 
@@ -95,6 +94,15 @@
     {% if show_signup or error_signup %}
       showSignup();
     {% endif %}
+
+    // Auto-dismiss alerts (e.g. invalid credentials) after 5s
+    const authAlerts = document.querySelectorAll('.dv-auth-card .alert');
+    authAlerts.forEach(a => {
+      setTimeout(() => {
+        a.classList.add('fade-out');
+        setTimeout(() => { try{ a.remove(); } catch(e){} }, 360);
+      }, 5000);
+    });
   });
 </script>
 

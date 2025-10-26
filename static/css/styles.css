@@ -73,6 +73,15 @@ body.auth-page .navbar{ display: none !important; }
 .dv-helper{ margin-top:20px; font-size:13px; color:var(--muted); text-align:center; }
 .dv-helper strong{ color:var(--strong); }
 
+/* alert fade for auth page */
+.dv-auth-card .alert{
+  transition: opacity .35s ease, transform .35s ease;
+}
+.dv-auth-card .alert.fade-out{
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
 /* custom scrollbar */
 ::-webkit-scrollbar{ width:8px; height:8px }
 ::-webkit-scrollbar-track{ background:var(--bg-2); }
